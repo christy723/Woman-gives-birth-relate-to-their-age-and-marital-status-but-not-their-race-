@@ -40,67 +40,55 @@ The other three variables are categorical because suppose every one responds to 
 
 Results
 ```{r}
-#load data
+#assign data
 data <- read.csv("gss.csv")
 ```
 ```{r}
 #choose partial data we want in this report
-data_on <- data %>% filter(province == "Quebec" & sex == "Female")
+data_new <- data %>% filter(province == "Quebec" & sex == "Female")
 #make some change for our data
-data_on <- data_on %>% mutate(ever_given_birth1 = case_when(
+data_new <- data_new %>% mutate(ever_given_birth1 = case_when(
   ever_given_birth == "Yes" ~ 1,
   ever_given_birth == "No" ~ 0
 ))
-data_on$ever_given_birth1[data_on$ever_given_birth1 == "Don't Know"] <- NA
-data_on <- data_on %>% mutate(ever_married1 = case_when(
+data_new$ever_given_birth1[data_new$ever_given_birth1 == "Don't Know"] <- NA
+data_new <- data_new %>% mutate(ever_married1 = case_when(
   ever_married == "Yes" ~ 1,
   ever_married == "No" ~ 0
 ))
-data_on$ever_married1[data_on$ever_married1 == "Don't Know"] <- NA
-data_on <- data_on %>% mutate(aboriginal1 = case_when(
+data_new$ever_married1[data_new$ever_married1 == "Don't Know"] <- NA
+data_new <- data_new %>% mutate(aboriginal1 = case_when(
   aboriginal == "Yes" ~ 1,
   aboriginal == "No" ~ 0
 ))
-data_on$aboriginal1[data_on$aboriginal1 == "Don't Know"] <- NA
-data_on <- data_on %>% mutate(vis_minority1 = case_when(
+data_new$aboriginal1[data_new$aboriginal1 == "Don't Know"] <- NA
+data_new <- data_new %>% mutate(vis_minority1 = case_when(
   vis_minority == "Visible minority" ~ 1,
   vis_minority == "Not a visible minority" ~ 0
 ))
-data_on$vis_minority1[data_on$vis_minority1 == "Don't Know"] <- NA
+data_new$vis_minority1[data_new$vis_minority1 == "Don't Know"] <- NA
 ```
 ```{r}
-data %>% ggplot(aes(y=age , x='')) + 
-  geom_boxplot() + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-  labs(y="", x="age",  title="age boxplot")
+data_new %>% ggplot(aes(y=age , x='')) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + labs(y="", x="age",  title="age boxplot")
 ```
 In this Figure, we find that the median age of women in Quebec is around 54.
 
 ```{r}
-data_on %>% ggplot(aes(x=aboriginal))+
-  geom_bar(aes(y = (..count..)/sum(..count..)), width=0.2)+
-  theme_classic() + scale_y_continuous(labels = percent) + 
-  labs(y="proportion", x="if belong to aboriginal",  title="Proportions of people belong to aboriginal")
+data_new %>% ggplot(aes(x=aboriginal))+ geom_bar(aes(y = (..count..)/sum(..count..)), width=0.2)+ theme_classic() + scale_y_continuous(labels = percent) + labs(y="proportion", x="if belong to aboriginal",  title="Proportions of people belong to aboriginal")
 ```
 In this Figure, we find that only around 4% women in Quebec belong to aboriginal.
 
 ```{r}
-data_on %>% ggplot(aes(x=vis_minority))+
-  geom_bar(aes(y = (..count..)/sum(..count..)), width=0.2)+
-  theme_classic() + scale_y_continuous(labels = percent) + 
-  labs(y="proportion", x="if belong to aboriginal",  title="Proportions of people belong to visibal minority")
+data_new %>% ggplot(aes(x=vis_minority))+ geom_bar(aes(y = (..count..)/sum(..count..)), width=0.2)+ theme_classic() + scale_y_continuous(labels = percent) +  labs(y="proportion", x="if belong to aboriginal",  title="Proportions of people belong to visibal minority")
 ```
 In this Figure, we find that only around 10% women in Quebec belong to visible minority.
 
 ```{r}
-data_on %>% ggplot(aes(x=ever_married))+
-  geom_bar(aes(y = (..count..)/sum(..count..)), width=0.2)+
-  theme_classic() + scale_y_continuous(labels = percent) + 
-  labs(y="proportion", x="if married",  title="Proportions of people married or not")
+data_new %>% ggplot(aes(x=ever_married))+ geom_bar(aes(y = (..count..)/sum(..count..)), width=0.2)+ theme_classic() + scale_y_continuous(labels = percent) + labs(y="proportion", x="if married",  title="Proportions of people married or not")
 ```
 In this Figure, we find that 60% women in Quebec married.
 ```{r}
-model <- glm(ever_given_birth1 ~ age + aboriginal1 + vis_minority1 + ever_married1, data = data_on)
+model <- glm(ever_given_birth1 ~ age + aboriginal1 + vis_minority1 + ever_married1, data = data_new)
 kable(summary(model)$coefficients, caption="logistic model", digits=3)
 ```
 Table 1 is a summary of the logistic model. The p-value for age and ever married is smaller than 0.05, which means there is significant evidence to show there is the meaningful statistical relationship between Quebec woman ever give birth and their age and if they have married. However, we cannot find the relationship between people ever give birth, and their race since the p-value for visible minority and aboriginal is more extensive than 0.05. Table 2 below shows the odds and confidence interval of the model. Based on over odds below, we find out that they get married, and older age can be two factors to make Quebec women have more desire to give birth to the child.
